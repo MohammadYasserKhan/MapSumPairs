@@ -1,5 +1,94 @@
+
 /*
+    Code written by Mohammad Yasser Khan - June 10, 2018 
+    Language used: C#
+    
     Problem: Implement a MapSum class with insert, and sum methods. 
     For the method insert, you'll be given a pair of (string, integer). The string represents the key and the integer represents the value. If the key already existed, then the original key-value pair will be overridden to the new one. 
     For the method sum, you'll be given a string representing the prefix, and you need to return the sum of all the pairs' value whose key starts with the prefix. 
 */
+
+public class MapSum {
+
+    public class TrieNode
+    {
+        public Dictionary<char, TrieNode> Children { get; set; } = new Dictionary<char, TrieNode>();
+        public bool IsWord { get; set; } = false;
+        public int Value { get; set; }
+    }
+    
+    TrieNode root;
+    
+    /** Initialize your data structure here. */
+    public MapSum() 
+    {
+        root = new TrieNode();        
+    }
+    
+    public void Insert(string key, int val) 
+    {
+        if ((key == null) || (key.Length == 0))
+        {
+            return;
+        }
+        
+        TrieNode current = root;
+        int keyLength = key.Length;
+        
+        for (int i = 0; i < keyLength; i++)
+        {
+            if (!current.Children.ContainsKey(key[i]))
+            {
+                current.Children.Add(key[i], new TrieNode());
+            }
+            
+            current = current.Children[key[i]];
+            
+            if (i == (keyLength - 1))
+            {
+                current.IsWord = true;
+                current.Value = val;
+            }
+        }
+    }
+    
+    public int Sum(string prefix) 
+    {
+        if ((prefix == null) || (prefix.Length == 0)) 
+        {
+            return 0;
+        }
+        
+        TrieNode current = root;
+        
+        for (int i = 0; i < prefix.Length; i++)
+        {
+            if (!current.Children.ContainsKey(prefix[i]))
+            {
+                return 0;
+            }
+            
+            current = current.Children[prefix[i]];
+        }
+        
+        int sum = GetSum(current);
+        return sum;
+    }
+    
+    private int GetSum(TrieNode item)
+    {
+        if (item.Children.Count == 0)
+        {
+            return item.Value;
+        }
+        
+        int sum = item.Value;
+        
+        foreach(KeyValuePair<char, TrieNode> child in item.Children)
+        {
+            sum += GetSum(child.Value);
+        }
+        
+        return sum;
+    }
+}
